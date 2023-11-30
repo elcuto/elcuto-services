@@ -14,24 +14,26 @@ class TigoGhTimweService{
     public static function processReceivedNotifications(Request $request, string $notificationType, $transactionUUID)
     {
         $service = DB::connection("at_pgsql")->table("tb_timwe_services")
-                            ->select("sub_table_name", "msg_table_name", "shortcode", "prefix", "price_point_id_mt_free", "price_point_id_mo_free")
+                            ->select("sub_table_name","service_name", "msg_table_name", "shortcode", "prefix", "price_point_mt_free", "price_point_mo_free")
                             ->where("product_id", $request->productId)->first();
 
         switch ($notificationType){
             case 'OPTIN':
             case 'RENEWAL':
-                Log::info("TABLE  NAME".$service->sub_table_name);
-                $exists = DB::connection('test_db_pgsql')->table($service->sub_table_name)
+                Log::info("TABLE  NAME".$service?->sub_table_name);
+                $exists = DB::connection('test_db_pgsql')->table($service?->sub_table_name)
                             ->where("subscriber", $request->msisdn)->first();
                 if(!$exists){
-                    DB::connection('test_db_pgsql')->table($service->sub_table_name)->insert([
+                    DB::connection('test_db_pgsql')->table($service?->sub_table_name)->insert([
                         "subscriber" => $request->msisdn,
-                        "regdate" => date("Y-m-d H:i:s")
+                        "regdate" => date("Y-m-d H:i:s"),
+                        "created_at" => now(),
+                        "updated_at" => now(),
                     ]);
                 }
 
                 //GET MESSAGE FOR THE DAY AND SEND TO SUBSCRIBER
-                $messageForDay = DB::connection('test_db_pgsql')->table($service->msg_table_name)
+                $messageForDay = DB::connection('test_db_pgsql')->table($service?->msg_table_name)
                                     ->whereDate("date", date("Y-m-d"))
                                     ->first();
                 if($messageForDay != null){
@@ -45,10 +47,19 @@ class TigoGhTimweService{
                         DB::connection("at_pgsql")->table("tb_mt_sms_sending")->insert([
                             "msisdn" => $request->msisdn,
                             "message" => $messageForDay->message,
-                            "shortcode" => $request->shortcode,
-                            "productid" => $request->productId,
-                            "pricepointid" => $request->pricepointId,
-                            "motransactionuuid" => $transactionUUID
+                            "shortcode" => $request->largeAccount,
+                            "product_id" => $request->productId,
+                            "price_point_id" => $request->pricepointId,
+                            "mo_transaction_uuid" => $transactionUUID,
+                            "date_to_send" => $messageSendTime,
+                            "is_sent" => 0,
+                            "priority" => 2,
+                            "requested" => now(),
+                            "mnc" => config("at.mnc"),
+                            "mcc" => config("at.mcc"),
+                            "entry_channel" => "SMS",
+                            "created_at" => now(),
+                            "updated_at" => now(),
                         ]);
                     }
                     else if(($nowTime >= $morningTime) && ($nowTime <= $eveningTime))
@@ -56,29 +67,64 @@ class TigoGhTimweService{
                         DB::connection("at_pgsql")->table("tb_mt_sms_sending")->insert([
                             "msisdn" => $request->msisdn,
                             "message" => $messageForDay->message,
-                            "shortcode" => $request->shortcode,
-                            "productid" => $request->productId,
-                            "pricepointid" => $request->pricepointId,
-                            "motransactionuuid" => $transactionUUID,
-                            "datetosend" => $messageSendTime
+                            "shortcode" => $request->largeAccount,
+                            "product_id" => $request->productId,
+                            "price_point_id" => $request->pricepointId,
+                            "mo_transaction_uuid" => $transactionUUID,
+                            "date_to_send" => $messageSendTime,
+                            "is_sent" => 0,
+                            "priority" => 2,
+                            "requested" => now(),
+                            "mnc" => config("at.mnc"),
+                            "mcc" => config("at.mcc"),
+                            "entry_channel" => "SMS",
+                            "created_at" => now(),
+                            "updated_at" => now(),
                         ]);
                     }else {
                         DB::connection("at_pgsql")->table("tb_mt_sms_sending")->insert([
                             "msisdn" => $request->msisdn,
                             "message" => $messageForDay->message,
-                            "shortcode" => $request->shortcode,
-                            "productid" => $request->productId,
-                            "pricepointid" => $request->pricepointId,
-                            "motransactionuuid" => $transactionUUID,
-                            "priority" => -1
+                            "shortcode" => $request->largeAccount,
+                            "product_id" => $request->productId,
+                            "price_point_id" => $request->pricepointId,
+                            "mo_transaction_uuid" => $transactionUUID,
+                            "date_to_send" => $messageSendTime,
+                            "priority" => -1,
+                            "is_sent" => 0,
+                            "requested" => now(),
+                            "mnc" => config("at.mnc"),
+                            "mcc" => config("at.mcc"),
+                            "entry_channel" => "SMS",
+                            "created_at" => now(),
+                            "updated_at" => now(),
                         ]);
                     }
                 }else{
-                        Log::info("APP_INFO: Message for day has not been set for " .$service->msg_table_name." for ".date("Y-m-d"));
+                        Log::info("APP_INFO: Message for day has not been set for " .$service?->msg_table_name." for ".date("Y-m-d"));
                 }
                 break;
             case "OPTOUT":
-                DB::connection("test_db_pgsql")->table($service->sub_table_name)->where("subscriber", $request->msisdn)->delete();
+                DB::connection("test_db_pgsql")->table($service?->sub_table_name)->where("subscriber", $request->msisdn)->delete();
+                //send an unsubscription message
+                DB::connection("at_pgsql")->table("tb_mt_sms_sending")->insert([
+                    "msisdn" => $request->msisdn,
+                    "message" => "You have successfully unsubcsribed from the ".$service?->service_name.". Text START ".strtoupper($service?->service_name)." to 4060 to subscribe again",
+                    "shortcode" => $request->largeAccount,
+                    "product_id" => $request->productId,
+                    "price_point_id" => $request->pricepointId,
+                    "mo_transaction_uuid" => $transactionUUID,
+                    "priority" => -1,
+                    "is_sent" => 0,
+                    "requested" => now(),
+                    "date_to_send" => now(),
+                    "mnc" => config("at.mnc"),
+                    "mcc" => config("at.mcc"),
+                    "entry_channel" => "SMS",
+                    "created_at" => now(),
+                    "updated_at" => now(),
+                ]);
+
                 break;
         }
     }

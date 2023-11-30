@@ -23,7 +23,7 @@ class OptinController extends Controller
         $externalTxnId = $request->header('external-tx-id');
         $transactionUUID = Str::uuid();
         $correlationId = $externalTxnId;
-        $resp_message = "";
+        $resp_message = "Successful";
         $inError = false;
         $requestId = $request->requestIdentifier;
         $resp_code = "";
