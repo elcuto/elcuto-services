@@ -27,18 +27,18 @@ class MONotificationsController extends Controller
 
         try {
             // INSERT INTO PARTNER NOTIF MO REQUEST TABLE
-            DB::table("partnernotifmorequest")->insert([
-                "partnerrole" => $partnerRole,
-                "externaltxid" => $externalTxnId,
-                "eventinsertdatetime" => date('Y-m-d H:i:s'),
-                "productid" => $request->productId,
-                "pricepointid" => $request->pricepointId,
+            DB::table("tb_partner_notif_mo_request")->insert([
+                "partner_role" => $partnerRole,
+                "external_txid" => $externalTxnId,
+                "event_insert_date" => date('Y-m-d H:i:s'),
+                "product_id" => $request->productId,
+                "price_point_id" => $request->pricepointId,
                 "mcc" => $request->mcc,
                 "mnc" => $request->mnc,
                 "text" => $request->text,
                 "msisdn" => $request->msisdn,
-                "largeaccount" => $request->shortcode,
-                "transactionuuid" => $transactionUUID,
+                "large_account" => $request->shortcode,
+                "transaction_uuid" => $transactionUUID,
                 "tags" => json_encode($request->tag)
             ]);
 
