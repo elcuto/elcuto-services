@@ -42,10 +42,11 @@ class MONotificationsController extends Controller
                 "tags" => json_encode($request->tag)
             ]);
 
+            $data = (object)$request->all();
 
             if(in_array($request->productId, [7530 , 9901, 22997])){
                 $actionType = strtoupper($request->text);
-                ProcessATPromoMORequest::dispatch($request, $actionType);
+                ProcessATPromoMORequest::dispatch($data, $actionType);
             }else{
                 Log::info("===========UNDEFINED MO HANDLER===========");
                 Log::info($request->all());

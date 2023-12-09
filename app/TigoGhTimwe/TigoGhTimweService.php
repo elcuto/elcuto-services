@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Log;
 class TigoGhTimweService{
 
 
-    public static function processReceivedNotifications(Request $request, string $notificationType, $transactionUUID)
+    public static function processReceivedNotifications($request, string $notificationType, $transactionUUID)
     {
         $service = DB::connection("at_pgsql")->table("tb_timwe_services")
                             ->select("sub_table_name","service_name", "msg_table_name", "shortcode", "prefix", "price_point_mt_free", "price_point_mo_free")
@@ -44,14 +44,14 @@ class TigoGhTimweService{
 
                     if($notificationType == "OPTIN")
                     {
-                        DB::connection("at_pgsql")->table("tb_mt_sms_sending")->insert([
+                        DB::connection("at_pgsql")->table("tb_mt_sms_sending")->insertGetId([
                             "msisdn" => $request->msisdn,
                             "message" => $messageForDay->message,
                             "shortcode" => $request->largeAccount,
                             "product_id" => $request->productId,
                             "price_point_id" => $request->pricepointId,
                             "mo_transaction_uuid" => $transactionUUID,
-                            "date_to_send" => $messageSendTime,
+                            "date_to_send" => $nowTime,
                             "is_sent" => 0,
                             "priority" => 2,
                             "requested" => now(),
@@ -71,9 +71,9 @@ class TigoGhTimweService{
                             "product_id" => $request->productId,
                             "price_point_id" => $request->pricepointId,
                             "mo_transaction_uuid" => $transactionUUID,
-                            "date_to_send" => $messageSendTime,
+                            "date_to_send" => $nowTime,
                             "is_sent" => 0,
-                            "priority" => 2,
+                            "priority" => 3,
                             "requested" => now(),
                             "mnc" => config("at.mnc"),
                             "mcc" => config("at.mcc"),
@@ -90,7 +90,7 @@ class TigoGhTimweService{
                             "price_point_id" => $request->pricepointId,
                             "mo_transaction_uuid" => $transactionUUID,
                             "date_to_send" => $messageSendTime,
-                            "priority" => -1,
+                            "priority" => 3,
                             "is_sent" => 0,
                             "requested" => now(),
                             "mnc" => config("at.mnc"),
@@ -114,7 +114,7 @@ class TigoGhTimweService{
                     "product_id" => $request->productId,
                     "price_point_id" => $request->pricepointId,
                     "mo_transaction_uuid" => $transactionUUID,
-                    "priority" => -1,
+                    "priority" => 3,
                     "is_sent" => 0,
                     "requested" => now(),
                     "date_to_send" => now(),

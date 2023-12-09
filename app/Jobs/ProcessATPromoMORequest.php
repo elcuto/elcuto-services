@@ -16,7 +16,7 @@ class ProcessATPromoMORequest implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    private Request $request;
+    private $request;
     private string $actionType;
     /**
      * Create a new job instance.

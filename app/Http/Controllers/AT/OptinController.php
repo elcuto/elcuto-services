@@ -4,6 +4,7 @@ namespace App\Http\Controllers\AT;
 
 use App\Http\Controllers\Controller;
 use App\Jobs\ProcessATPromoMORequest;
+use App\Jobs\ProcessATRenewalNotification;
 use App\TigoGhTimwe\ElcThirdPartySMSService;
 use App\TigoGhTimwe\TigoGhTimweService;
 use Illuminate\Http\Request;
@@ -76,27 +77,31 @@ class OptinController extends Controller
             }
 
 
+            $data = (object)$request->all();
+            $data->requestIdentifier = $request->requestIdentifier;
+
             //CHECK FOR THE PRODUCT CUSTOMER IS SUBSCRIBING TO
             if(in_array($request->productId, [7530 , 9901, 22997]))//PROMO SERVICES
             {
-                ProcessATPromoMORequest::dispatch($request, "START");
+                ProcessATPromoMORequest::dispatch($data, "START");
             }
             else if($request->productId === 7529)
             {
-                ElcThirdPartySMSService::processThirdPartyRequests($request);
+                ElcThirdPartySMSService::processThirdPartyRequests($data);
             }
             else if($request->productId === 7528)
             {
-                ElcThirdPartySMSService::processThirdPartyRequests($request);
+                ElcThirdPartySMSService::processThirdPartyRequests($data);
             }
             else if($request->productId === 7527)
             {
-                ElcThirdPartySMSService::processThirdPartyRequests($request);
+                ElcThirdPartySMSService::processThirdPartyRequests($data);
             }else{
                 if($request->route()->getName() == "user-optin"){
-                    TigoGhTimweService::processReceivedNotifications($request, "OPTIN", $transactionUUID);
+                    TigoGhTimweService::processReceivedNotifications($data, "OPTIN", $transactionUUID);
                 }else if($request->route()->getName() == "renew"){
-                    TigoGhTimweService::processReceivedNotifications($request, "RENEWAL", $transactionUUID);
+                    ProcessATRenewalNotification::dispatch($data, "RENEWAL", $transactionUUID);
+//                    TigoGhTimweService::processReceivedNotifications($data, "RENEWAL", $transactionUUID);
                 }else{
                     Log::info("=========== OPTIN NOT RECEIVED ON CORRECT ROUTE ===========");
                     Log::info($request->all());
@@ -158,23 +163,26 @@ class OptinController extends Controller
                 "is_active" => 0,
             ]);
 
+            $data = (object)$request->all();
+
             if(in_array($request->productId, [7530, 9901, 22997])) //DEACTIVATION FROM PROMO SERVICE
             {
-                ProcessATPromoMORequest::dispatch($request, "STOP");
+
+                ProcessATPromoMORequest::dispatch($data, "STOP");
             }
             else if($request->productId === 7529)
             {
-                ElcThirdPartySMSService::processThirdPartyRequests($request, "UNSUBSCRIPTION");
+                ElcThirdPartySMSService::processThirdPartyRequests($data, "UNSUBSCRIPTION");
             }
             else if($request->productId === 7528)
             {
-                ElcThirdPartySMSService::processThirdPartyRequests($request, "UNSUBSCRIPTION");
+                ElcThirdPartySMSService::processThirdPartyRequests($data, "UNSUBSCRIPTION");
             }
             else if($request->productId === 7527)
             {
-                ElcThirdPartySMSService::processThirdPartyRequests($request, "UNSUBSCRIPTION");
+                ElcThirdPartySMSService::processThirdPartyRequests($data, "UNSUBSCRIPTION");
             }else{
-                TigoGhTimweService::processReceivedNotifications($request, "OPTOUT", $transactionUUID);
+                TigoGhTimweService::processReceivedNotifications($data, "OPTOUT", $transactionUUID);
             }
 
             return response()->json([

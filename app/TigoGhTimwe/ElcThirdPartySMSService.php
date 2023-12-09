@@ -10,7 +10,12 @@ use Illuminate\Support\Facades\Log;
 
 class ElcThirdPartySMSService
 {
-    public static function processThirdPartyRequests(Request $request, $actionType="SUBSCRIPTION"){
+    /**
+     * @param $request
+     * @param $actionType
+     * @return void
+     */
+    public static function processThirdPartyRequests($request, $actionType="SUBSCRIPTION"){
 
     }
 }

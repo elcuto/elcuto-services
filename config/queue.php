@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'default' => env('QUEUE_CONNECTION', 'sync'),
+    'default' => env('QUEUE_CONNECTION', 'redis'),
 
     /*
     |--------------------------------------------------------------------------
@@ -69,6 +69,17 @@ return [
             'retry_after' => 90,
             'block_for' => null,
             'after_commit' => false,
+            // note: theses are the queues for the redis. queues with low priority values have higher priorities by convention
+            'default' => [
+                'queue' => env('REDIS_QUEUE', 'default'),
+                'connection' => 'default',
+                'priority' => 1, // Set default priority for jobs
+            ],
+            'at_traditional' => [
+                'queue' => env('REDIS_QUEUE', 'default'),
+                'connection' => 'default',
+                'priority' => 2, // Set default priority for jobs
+            ],
         ],
 
     ],
