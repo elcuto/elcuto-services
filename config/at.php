@@ -8,5 +8,5 @@ return [
     "mnc" => "620",
     "mcc" => "03",
     "pre_shared_key" => "put timwe partner pre shared key here",
-    "base_url" => "timwe base url here"
+    "base_url" => "timwe base url here",
 ];

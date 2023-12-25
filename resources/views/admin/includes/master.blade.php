@@ -1,7 +1,10 @@
-@include("admin.includes.header")
 
-@yield("content")
+@include('admin.includes.header')
 
-@yield("content_two")
+@include('admin.includes.topbar')
 
-@include("admin.includes.footer")
+@include('admin.includes.sidebar')
+
+@yield('contentone')
+
+@include('admin.includes.footer')

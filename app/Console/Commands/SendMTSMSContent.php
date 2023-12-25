@@ -25,6 +25,6 @@ class SendMTSMSContent extends Command
      */
     public function handle()
     {
-        
+
     }
 }
