@@ -87,8 +87,9 @@
               </a>
               <ul class="treeview-menu">
 
+                  <li><a href="{{url('/new-third-party')}}"><i class="fa fa-circle-o"></i> New Third Party</a></li>
                   <li><a href="{{url('/third-parties')}}"><i class="fa fa-circle-o"></i> Third Parties</a></li>
-                  <li><a href="{{url('/add-third-party')}}"><i class="fa fa-circle-o"></i> New Third Party</a></li>
+                  {{-- <li><a href="{{url('/add-third-party')}}"><i class="fa fa-circle-o"></i> New Third Party</a></li> --}}
               </ul>
           </li>
 

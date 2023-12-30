@@ -52,7 +52,7 @@ class ATDailyPromoPointsBackUp extends Command
                 ->table('tb_at_promo_subs_back_up')
                 ->insert(json_decode(json_encode($records), True));
 
-            DB::table('at_promo_subs')->update([
+            DB::connection("at_mega_promo")->table('at_promo_subs')->update([
                 'points' => 0
             ]);
 

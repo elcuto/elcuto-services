@@ -14,7 +14,7 @@
             </h1>
             <ol class="breadcrumb">
                 <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
-                <li class="active">Add VF Promo Questions</li>
+                <li class="active">Integrate Third Party Company</li>
             </ol>
         </section>
 
@@ -24,69 +24,74 @@
                 <div class="col-md-8">
                     <div class="box box-default">
                         <div class="box-header with-border">
-                            <h3 class="box-title">New <strong>VF Promo</strong> Questions</h3>
+                            <h3 class="box-title">New Company</h3>
                         </div>
                         <!-- /.box-header -->
                         <div class="box-body">
-                            <form method="POST" id="add_questions" action="#">
+                            <form method="POST" id="new_thirdparty" action="#">
                                 {{csrf_field()}}
 
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <div class="form-group" id="usernamecont">
-                                            <label for="question">Question</label>
-                                            <textarea required type="text" rows="5" maxlength="160" class="form-control" name="question" id="question"></textarea>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <div class="form-group" id="answer">
-                                            <label for="answer">Answer</label>
-                                            <input id="answer" required maxlength="1" type="text" class="form-control" name="answer" />
-                                        </div>
-                                    </div>
-                                </div>
-
-
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <button type="submit" class="btn btn-success"><i class="fa fa-plus-circle"></i> Add Question</button>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-4">
-                    <div class="box box-default">
-                        <div class="box-header with-border">
-                            <h3 class="box-title">Load From File(Excel) - <strong>Vodafone Promo</strong></h3>
-                        </div>
-                        <!-- /.box-header -->
-                        <div class="box-body">
-                            <form method="POST" id="excelQuestionsLoad" action="#">
-                                {{csrf_field()}}
                                 <div class="row">
                                     <div class="col-md-12">
                                         <div class="form-group" >
-                                            <label for="excel_file">Excel File</label>
-                                            <input type="file" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" id="excel_file" class="form-control" name="excel_file" />
-                                            <small style="color:red;">Check format for excel below</small>
+                                            <label for="name">Company Name</label>
+                                            <input id="name" required  type="text" class="form-control" name="name" />
                                         </div>
                                     </div>
                                 </div>
+
                                 <div class="row">
                                     <div class="col-md-12">
-                                        <button type="submit" class="btn btn-success"><i class="fa fa-plus-circle"></i> Load Questions</button>
+                                        <div class="form-group" >
+                                            <label for="email">Company Email</label>
+                                            <input id="email" required  type="text" class="form-control" name="email" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group" >
+                                            <label for="question">Description</label>
+                                            <textarea required type="text" rows="5" class="form-control" name="description" id="question"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group" >
+                                            <label for="network">Network</label>
+                                            <select class="form-control" name="network">
+                                                <option value="ALL">ALL</option>
+                                                <option value="AT">AT</option>
+                                                <option value="MTN">MTN</option>
+                                                <option value="VODAFONE">VODAFONE</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group" >
+                                            <label for="client_id">Client ID</label>
+                                            <input id="client_id" type="text" value="{{$cleint_id}}" readonly class="form-control" name="client_id" />
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <button type="submit" class="btn btn-success"><i class="fa fa-plus-circle"></i> Add Company</button>
                                     </div>
                                 </div>
                             </form>
                         </div>
                     </div>
                 </div>
+
             </div>
         </section>
         <!-- /.content -->
@@ -114,11 +119,11 @@
     </script>
     <script>
 
-        $('#add_questions').submit(function(event){
+        $('#new_thirdparty').submit(function(event){
             event.preventDefault();
 
-            var data = new FormData($("#add_questions")[0]);
-            var title = 'Add Question To Vodafone Promo';
+            var data = new FormData($("#new_thirdparty")[0]);
+            var title = 'Add New Third Party Company';
             Swal.fire({
                 title: title,
                 text: "Are you sure?",
@@ -130,7 +135,7 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     $.ajax({
-                        url: "{{url('/add-vf-questions')}}",
+                        url: "{{url('/save-third-party')}}",
                         method: "POST",
                         data: data,
                         cache: false,
@@ -167,58 +172,6 @@
             })
         })
 
-        $('#excelQuestionsLoad').submit(function(event){
-            event.preventDefault();
-
-            var data = new FormData($("#excelQuestionsLoad")[0]);
-            var title = 'Uploading Vodafone Promo Questions File';
-            Swal.fire({
-                title: title,
-                text: "Are you sure?",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes, Proceed'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $.ajax({
-                        url: "{{url('/load-vf-excel-questions')}}",
-                        method: "POST",
-                        data: data,
-                        cache: false,
-                        contentType: false,
-                        processData: false,
-                        enctype: 'multipart/form-data',
-                        success: function(res){
-                            if(res.status =='success'){
-                                Swal.fire(
-                                    'Success',
-                                    res.message,
-                                    'success'
-                                ).then(() => {
-                                    window.location.reload();
-                                });
-                            }else{
-                                Swal.fire(
-                                    'Error',
-                                    res.message,
-                                    'error'
-                                );
-                            }
-                        },
-                        error: function(error){
-                            console.log(error),
-                                Swal.fire(
-                                    'Error',
-                                    "Oops something went wrong.",
-                                    'error'
-                                );
-                        }
-                    })
-                }
-            })
-        })
 
     </script>
 

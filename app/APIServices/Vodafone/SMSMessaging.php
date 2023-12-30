@@ -17,6 +17,7 @@ class SMSMessaging
 
     public function __construct()
     {
+        
     }
 
     public function sendContentToCustomer(SMSSending $sms, $serviceid)
