@@ -24,6 +24,7 @@ You will need to create the below databases to run this code successfully.
 - TestDB
 - TigoGhTimweDB
 - TigoMegaPromoDB
+- VFTelenityDB
 - More to be added soon
 
 run 'php artisan migrate' to migrate to various databases.
